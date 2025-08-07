@@ -1,3 +1,5 @@
+'use client'; // Keep as client component for consistency
+
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -41,8 +43,8 @@ export default function Home() {
               <Image
                 src="/images/founder/founder-01.jpeg"
                 alt="Jay, Founder of Jaybash Customs"
-                width={400}
-                height={400}
+                width={200}
+                height={200}
                 className="rounded-lg"
               />
             </div>
@@ -171,13 +173,21 @@ export default function Home() {
       {/* Drifting Classes Section */}
       <section className="py-12 bg-jayBlack text-center">
         <p className="text-jayWhite max-w-2xl mx-auto mb-6">
-          Are you a passionate automotive person who wants to go sideways once in a while? Who is a better person to teach you than the drift King himself, Jaybash? Click the button below for more information. Who knows, you might just become the next drift king.
+          Are you a passionate automotive person who wants to go sideways once in a while? 
+          Who is a better person to teach you than the drift King himself, Jaybash.
+           Click the button below for more information. Or bring in your ride for a make over, it deserves it.
         </p>
         <Link
           href="/drifting-classes"
-          className="bg-jayYellow text-jayBlack px-6 py-2 rounded hover:bg-jayWhite transition"
+          className="mt-4 inline-block bg-jayYellow text-jayBlack px-6 py-2 rounded hover:bg-jayWhite transition"
         >
           Learn to Drift
+        </Link>
+        <Link
+          href="/booking"
+          className="mt-4 inline-block bg-jayYellow text-jayBlack px-6 py-2 rounded hover:bg-jayWhite transition ml-4"
+        >
+          Book Us Now
         </Link>
       </section>
     </div>

@@ -1,7 +1,11 @@
-'use client';
+'use client'; // Mark this file as a Client Component
+
 import { useState } from 'react';
 
 export default function Booking() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [serviceType, setServiceType] = useState('');
   const [details, setDetails] = useState('');
   const [wrapTypes, setWrapTypes] = useState<string[]>([]);
@@ -12,10 +16,14 @@ export default function Booking() {
   const [originalColor, setOriginalColor] = useState('');
   const [wrapExtent, setWrapExtent] = useState('');
   const [specialRequest, setSpecialRequest] = useState('');
+  const [date, setDate] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Booking submitted:', {
+  const handleBookingSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const bookingDetails = {
+      name,
+      email,
+      phone,
       serviceType,
       details,
       wrapTypes,
@@ -26,9 +34,20 @@ export default function Booking() {
       originalColor,
       wrapExtent,
       specialRequest,
+      date,
+    };
+
+    const response = await fetch('/api/sendBookingPDF', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingDetails),
     });
-    // Add API call or email submission logic here
-    alert('Booking request submitted! An invoice will be sent to you via email soon.');
+
+    if (response.ok) {
+      alert('Booking details sent to your email as a PDF!');
+    } else {
+      alert('Failed to send booking details. Please try again.');
+    }
   };
 
   return (
@@ -37,13 +56,55 @@ export default function Booking() {
         <h1 className="text-4xl font-bold text-jayYellow text-center mb-8">
           Book Your Service
         </h1>
-        <form onSubmit={handleSubmit} className="bg-jayGrey p-6 rounded-lg">
-          <div className="mb-4">
-            <label className="block text-jayWhite mb-2">What would you like to book?</label>
+        <form onSubmit={handleBookingSubmit} className="max-w-lg mx-auto space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-jayWhite mb-2">Your Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name"
+              className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-jayWhite mb-2">Your Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your Email"
+              className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-jayWhite mb-2">Your Phone</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Your Phone"
+              className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="serviceType" className="block text-jayWhite mb-2">What would you like to book?</label>
             <select
-              className="w-full p-2 rounded bg-jayBlack text-jayWhite"
+              id="serviceType"
+              name="serviceType"
               value={serviceType}
               onChange={(e) => setServiceType(e.target.value)}
+              className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+              required
             >
               <option value="">Select an option</option>
               <option value="drifting">Drifting Classes</option>
@@ -86,11 +147,15 @@ export default function Booking() {
                   Master Class - 4 hours, turbocharged cars
                 </label>
               </div>
-              <textarea
-                className="w-full p-2 mt-4 rounded bg-jayBlack text-jayWhite"
-                placeholder="Additional requests or notes..."
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
+              <label htmlFor="date" className="block text-jayWhite mt-4 mb-2">Select Date</label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+                required
               />
             </div>
           )}
@@ -100,7 +165,7 @@ export default function Booking() {
               <h2 className="text-2xl font-semibold text-jayYellow mb-4">Car Wrap & Customization</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-jayWhite mb-2">Wrap Types (Select one or more)</label>
+                  <label htmlFor="wrapTypes" className="block text-jayWhite mb-2">Wrap Types (Select one or more)</label>
                   <div className="flex space-x-4">
                     {['Matte', 'Gloss', 'Chrome'].map((type) => (
                       <label key={type} className="text-jayWhite">
@@ -120,7 +185,7 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Detailing Options (Select one or more)</label>
+                  <label htmlFor="detailingOptions" className="block text-jayWhite mb-2">Detailing Options (Select one or more)</label>
                   <div className="flex flex-wrap space-x-4">
                     {['PPFs', 'Tints', 'Paint Correction', 'Ceramic Coating', 'Polishing'].map((option) => (
                       <label key={option} className="text-jayWhite">
@@ -140,7 +205,7 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Colors (Select one or more)</label>
+                  <label htmlFor="colors" className="block text-jayWhite mb-2">Colors (Select one or more)</label>
                   <div className="flex flex-wrap space-x-4">
                     {[
                       'Black', 'White', 'Silver', 'Gray', 'Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange', 'Gold', 'Bronze',
@@ -163,7 +228,7 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Customizations (Select one or more)</label>
+                  <label htmlFor="customizations" className="block text-jayWhite mb-2">Customizations (Select one or more)</label>
                   <div className="flex flex-wrap space-x-4">
                     {['Tunes', 'Downpipes', 'Intercoolers', 'Turbos', 'Exhaust Systems', 'Lowering Springs', 'Spoilers'].map((mod) => (
                       <label key={mod} className="text-jayWhite">
@@ -183,11 +248,13 @@ export default function Booking() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Car Model</label>
+                  <label htmlFor="carModel" className="block text-jayWhite mb-2">Car Model</label>
                   <select
-                    className="w-full p-2 rounded bg-jayBlack text-jayWhite"
+                    id="carModel"
+                    name="carModel"
                     value={carModel}
                     onChange={(e) => setCarModel(e.target.value)}
+                    className="w-full p-2 rounded bg-jayGrey text-jayWhite"
                   >
                     <option value="">Select your car</option>
                     <option value="bmw">BMW</option>
@@ -205,21 +272,25 @@ export default function Booking() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Original Car Color</label>
+                  <label htmlFor="originalColor" className="block text-jayWhite mb-2">Original Car Color</label>
                   <input
                     type="text"
-                    className="w-full p-2 rounded bg-jayBlack text-jayWhite"
-                    placeholder="Enter original color (e.g., Silver)"
+                    id="originalColor"
+                    name="originalColor"
                     value={originalColor}
                     onChange={(e) => setOriginalColor(e.target.value)}
+                    className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+                    placeholder="Enter original color (e.g., Silver)"
                   />
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Wrap Extent</label>
+                  <label htmlFor="wrapExtent" className="block text-jayWhite mb-2">Wrap Extent</label>
                   <select
-                    className="w-full p-2 rounded bg-jayBlack text-jayWhite"
+                    id="wrapExtent"
+                    name="wrapExtent"
                     value={wrapExtent}
                     onChange={(e) => setWrapExtent(e.target.value)}
+                    className="w-full p-2 rounded bg-jayGrey text-jayWhite"
                   >
                     <option value="">Select extent</option>
                     <option value="full">Full Wrap</option>
@@ -229,12 +300,14 @@ export default function Booking() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-jayWhite mb-2">Special Customization Request</label>
+                  <label htmlFor="specialRequest" className="block text-jayWhite mb-2">Special Customization Request</label>
                   <textarea
-                    className="w-full p-2 rounded bg-jayBlack text-jayWhite"
-                    placeholder="Describe any special customizations not listed..."
+                    id="specialRequest"
+                    name="specialRequest"
                     value={specialRequest}
                     onChange={(e) => setSpecialRequest(e.target.value)}
+                    className="w-full p-2 rounded bg-jayGrey text-jayWhite"
+                    placeholder="Describe any special customizations not listed..."
                   />
                 </div>
               </div>
