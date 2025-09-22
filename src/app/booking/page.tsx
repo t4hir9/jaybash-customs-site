@@ -147,16 +147,6 @@ export default function Booking() {
                   Master Class - 4 hours, turbocharged cars
                 </label>
               </div>
-              <label htmlFor="date" className="block text-jayWhite mt-4 mb-2">Select Date</label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full p-2 rounded bg-jayGrey text-jayWhite"
-                required
-              />
             </div>
           )}
 

@@ -1,6 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import PDFDocument from 'pdfkit';
-import fs from 'fs';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -8,44 +6,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { name, email, phone, service, date } = req.body;
+  const { name, email, phone, serviceType, details, wrapTypes, detailingOptions, colors, customizations, carModel, originalColor, wrapExtent, specialRequest, date } = req.body;
 
-  // Generate PDF
-  const doc = new PDFDocument();
-  const pdfPath = `/tmp/booking-${Date.now()}.pdf`;
-  doc.pipe(fs.createWriteStream(pdfPath));
-  doc.fontSize(16).text('Jaybash Customs Booking Confirmation', { align: 'center' });
-  doc.moveDown();
-  doc.fontSize(12).text(`Name: ${name}`);
-  doc.text(`Email: ${email}`);
-  doc.text(`Phone: ${phone}`);
-  doc.text(`Service: ${service}`);
-  doc.text(`Date: ${date}`);
-  doc.end();
-
-  // Email configuration
+  // Configure transporter (using environment variables for security)
   const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use your email service (e.g., Gmail, replace with your provider)
+    service: process.env.EMAIL_SERVICE,
     auth: {
-      user: 'your-email@gmail.com', // Replace with your email
-      pass: 'your-app-password', // Use an app-specific password for Gmail
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
+  // Define recipients (add jaybashcustoms email)
+  const recipients = [
+    email, // Original recipient (user's email)
+    'abdultahir779@gmail.com', // Additional recipient for admin
+  ];
+
+  // Email content
   const mailOptions = {
-    from: 'your-email@gmail.com',
-    to: email,
-    subject: 'Your Jaybash Customs Booking Confirmation',
-    text: `Dear ${name}, your booking for ${service} on ${date} has been confirmed. Please find the PDF attachment.`,
-    attachments: [{ filename: `booking-${Date.now()}.pdf`, path: pdfPath }],
+    from: process.env.EMAIL_USER,
+    to: recipients.join('abdultahir779@gmail.com'), // Combine multiple recipients
+    subject: `New Booking from ${name}`,
+    text: `
+      Booking Details:
+      Name: ${name}
+      Email: ${email}
+      Phone: ${phone}
+      Service Type: ${serviceType}
+      Details: ${details || 'N/A'}
+      Wrap Types: ${wrapTypes.join(', ') || 'N/A'}
+      Detailing Options: ${detailingOptions.join(', ') || 'N/A'}
+      Colors: ${colors.join(', ') || 'N/A'}
+      Customizations: ${customizations.join(', ') || 'N/A'}
+      Car Model: ${carModel || 'N/A'}
+      Original Color: ${originalColor || 'N/A'}
+      Wrap Extent: ${wrapExtent || 'N/A'}
+      Special Request: ${specialRequest || 'N/A'}
+      Date: ${date}
+    `,
+    attachments: [], // Add attachments if needed (e.g., PDF generation)
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    fs.unlinkSync(pdfPath); // Clean up temporary file
-    res.status(200).json({ message: 'Email sent successfully' });
+    res.status(200).json({ message: 'Booking details sent successfully' });
   } catch (error) {
-    fs.unlinkSync(pdfPath); // Clean up on error
-    res.status(500).json({ message: 'Failed to send email' });
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Failed to send booking details' });
   }
 }

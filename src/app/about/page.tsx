@@ -4,7 +4,7 @@ export default function About() {
   return (
     <div className="relative w-screen min-h-screen py-10 bg-jayBlack">
       <Image
-        src="/images/about/about-01.jpg"
+        src="/images/hero/hero-01.jpg"
         alt="About Jaybash Customs Background"
         fill
         style={{ objectFit: 'cover' }}
